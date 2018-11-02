@@ -10,9 +10,10 @@ var canvas,
     enemyTwo,
     enemyTotal = 4,
     enemies = [],
-    enemy_x = 50, enemy_y = -45, enemy_w = 50, enemy_h = 50,
+    enemy_x = 50, enemy_y = -45, enemy_w = 40, enemy_h = 40,
     speed = 3,
     userShip,
+    alive = true,
     laserTotal = 9,
     lasers = [],
     rightKey = false,
@@ -21,15 +22,18 @@ var canvas,
     downKey = false,
     ship_x = (width / 2) - 25, ship_y = height - 75, ship_w = 50, ship_h = 50;
 
-
 for (var i = 0; i < enemyTotal; i++) {
     enemies.push([enemy_x, enemy_y, enemy_w, enemy_h, speed]);
-    enemy_x += enemy_w + 60;
+    enemy_x += enemy_w + 70;
 }
 
 function clearCanvas() {
     ctx.clearRect(0,0,width,height);
 }
+
+var explosion = new Image();
+explosion.src = "../img/explosion.png";
+var [frame, sx, sy] = [0, 0, 0];
 
 function drawShip() {
     if (rightKey) ship_x += 6;
@@ -40,15 +44,45 @@ function drawShip() {
     if ((ship_x + ship_w) >= width) ship_x = width - ship_w;
     if (ship_y <= 0) ship_y = 0;
     if ((ship_y + ship_h) >= height) ship_y = height - ship_h;
-    ctx.drawImage(userShip, ship_x, ship_y, 60, 60);
+    if (alive) {
+        ctx.drawImage(userShip, ship_x, ship_y, 60, 60);
+    } else {
+        var w = 180;
+        var h = 180;
+        if (frame === 0) {
+            sx = 0;
+        } else if (frame <= 0.3) {
+            sx = 192;
+        } else if (frame <= 0.6) {
+            sx = 384;
+        } else if (frame <= 0.9) {
+            sx = 576;
+        } else if (frame <= 1.2) {
+            sx = 768;
+        } else if (frame <= 1.5) {
+            sx = 960;
+        } else if (frame <= 1.8) {
+            sx = 0;
+            sy = 192;
+        } else if (frame <= 2.1) {
+            sx = 192;
+            sy = 192;
+        }else {
+            w = 0;
+            h = 0;
+        }
+        frame += 0.2;
+        console.log('frame', frame);
+        console.log('sy', sy);
+        ctx.drawImage(explosion, sx, sy, w, h, ship_x-60, ship_y+40 - (h / 2), w, h);
+    }
+    
 }
 
-var enemyOneBullet = new Image();
-enemyOneBullet.src = "../css/enemyOneBullet.png";
-
+var enemyOneBullets = [];
 function drawEnemies() {
     for (var i = 0; i < enemies.length; i++) {
-        ctx.drawImage(enemyOne, enemies[i][0], enemies[i][1], 50, 50);   
+        ctx.drawImage(enemyOne, enemies[i][0], enemies[i][1], 50, 50); 
     }
 }
 
@@ -56,20 +90,36 @@ function moveEnemies() {
     for (var i = 0; i < enemies.length; i++) {
         if (enemies[i][1] < height) {
             enemies[i][1] += enemies[i][4];
+            if (enemies[i][1] === 51) {
+                enemyOneBullets.push([enemies[i][0] + 10, enemies[i][1]]);
+            }
+            if (enemies[i][1] === 210) {
+                enemyOneBullets.push([enemies[i][0] + 10, enemies[i][1]]);
+            }
+
         } else if (enemies[i][1] > height - 1) {
             enemies[i][1] = -45;
         }
+
     }
 }
 
 var laser = new Image();
 laser.src = "../css/laser.png";
+var enemyOneBullet = new Image();
+enemyOneBullet.src = "../css/enemyOneBullet.png";
 
 function drawLaser() {
   if (lasers.length)
     for (var i = 0; i < lasers.length; i++) {
         ctx.drawImage(laser, lasers[i][0], lasers[i][1], lasers[i][2], lasers[i][3]);
     }
+
+  if (enemyOneBullets.length)
+    for (var i = 0; i < enemyOneBullets.length; i++) {
+        ctx.drawImage(enemyOneBullet, enemyOneBullets[i][0], enemyOneBullets[i][1], 35, 35);
+    }
+
 }
 
 function moveLaser() {
@@ -80,6 +130,15 @@ function moveLaser() {
             lasers.splice(i, 1);
         }
     }
+
+    for (var i = 0; i < enemyOneBullets.length; i++) {
+        if (enemyOneBullets[i][1] < height) {
+            enemyOneBullets[i][1] += 5;
+        } else if (enemyOneBullets[i][1] > height - 1) {
+            enemyOneBullets.splice(i, 1);
+        }
+    }
+
 }
 
 function init() {
@@ -91,10 +150,9 @@ function init() {
     userShip.src = 'spaceship.png'; 
     enemyOne = new Image();
     enemyOne.src = 'enemyOne.png';
-    setInterval(gameLoop, 25);
     document.addEventListener('keydown', keyDown, false);
     document.addEventListener('keyup', keyUp, false);
-
+    setInterval(gameLoop, 25);
 }
 
 function keyDown(e) {
@@ -112,9 +170,6 @@ function keyUp(e) {
   else if (e.keyCode == 40) downKey = false;
 }
 
-
-var explosionImg = new Image();
-explosionImg.src = "../css/explosion.png";
 
 function hitTest() {
     var remove = false;
@@ -141,6 +196,32 @@ function hitTest() {
     }
 }
 
+function shipCollision() {
+    var ship_xw = ship_x  + ship_w,
+        ship_yh = ship_y  + ship_h;
+    for (var i = 0; i < enemies.length; i++) {
+        if (ship_x  > enemies[i][0] && ship_x  < enemies[i][0] + enemy_w && ship_y  > enemies[i][1] && ship_y  < enemies[i][1] + enemy_h ) {
+          alive = false;
+        }
+        if (ship_xw < enemies[i][0] + enemy_w && ship_xw > enemies[i][0] && ship_y  > enemies[i][1] && ship_y  < enemies[i][1] + enemy_h ) {
+          alive = false;
+        } 
+        if (ship_yh > enemies[i][1] && ship_yh < enemies[i][1] + enemy_h && ship_x  > enemies[i][0] && ship_x  < enemies[i][0] + enemy_w ) {
+          alive = false;
+        }
+        if (ship_yh > enemies[i][1] && ship_yh < enemies[i][1] + enemy_h && ship_xw < enemies[i][0] + enemy_w && ship_xw > enemies[i][0]) {
+          alive = false;
+        }
+    }
+
+    for (var i = 0; i < enemyOneBullets.length; i++) {
+        if (enemyOneBullets[i][0] + 30 > ship_x && enemyOneBullets[i][0] < ship_xw && enemyOneBullets[i][1] > ship_y && enemyOneBullets[i][1] < ship_yh) {
+            alive = false;
+        }
+        
+    }
+}
+
 var vx = 0;
 var bgImg = new Image();
 bgImg.src = "../css/galaxy.png";
@@ -156,16 +237,32 @@ function drawBackground() {
     }
 }
 
+function scoreTotal() {
+
+    if (!alive) {
+
+        if (frame > 2.3) {
+            clearCanvas();
+            ctx.fillStyle = '#fff';
+            ctx.font = "bold 18px Arial";
+            ctx.fillText('Game Over', 200, height / 2);
+        }
+    }
+}
+
 
 function gameLoop() {
     clearCanvas();
-    hitTest();
-    moveEnemies();
-    moveLaser();
-    drawEnemies();
-    drawShip();
-    drawLaser();
-    drawBackground();
+        moveEnemies();
+        moveLaser();
+        shipCollision();
+        drawEnemies();
+        drawShip();
+        drawLaser();
+        hitTest();
+        drawBackground();
+    
+    scoreTotal();
 }
 
 window.onload = init;
