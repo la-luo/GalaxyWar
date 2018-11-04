@@ -10,10 +10,11 @@ var canvas,
     enemyTwo,
     enemyTotal = 4,
     enemies = [],
-    enemy_x = 50, enemy_y = -45, enemy_w = 40, enemy_h = 40,
+    enemy_x = 50, enemy_y = -45, enemy_w = 45, enemy_h = 45,
     speed = 3,
     userShip,
     alive = true,
+    healthPoints = 3,
     laserTotal = 9,
     lasers = [],
     rightKey = false,
@@ -22,10 +23,21 @@ var canvas,
     downKey = false,
     ship_x = (width / 2) - 25, ship_y = height - 75, ship_w = 50, ship_h = 50;
 
-for (var i = 0; i < enemyTotal; i++) {
-    enemies.push([enemy_x, enemy_y, enemy_w, enemy_h, speed]);
-    enemy_x += enemy_w + 70;
+function setup() {
+    for (var i = 0; i < enemyTotal; i++) {
+        enemies.push([
+          Math.random() * 450,
+          -45,
+          enemy_w,
+          enemy_h,
+          speed,
+          1
+        ]);
+    }
+
+    enemies.push([50, -250, 80, 80, speed = 4, 2]);
 }
+
 
 function clearCanvas() {
     ctx.clearRect(0,0,width,height);
@@ -72,42 +84,60 @@ function drawShip() {
             h = 0;
         }
         frame += 0.2;
-        console.log('frame', frame);
-        console.log('sy', sy);
+
         ctx.drawImage(explosion, sx, sy, w, h, ship_x-60, ship_y+40 - (h / 2), w, h);
     }
     
 }
 
-var enemyOneBullets = [];
 function drawEnemies() {
     for (var i = 0; i < enemies.length; i++) {
-        ctx.drawImage(enemyOne, enemies[i][0], enemies[i][1], 50, 50); 
+        if (enemies[i][5] === 1) {
+            ctx.drawImage(enemyOne, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]); 
+        }
+        if (enemies[i][5] === 2) {
+            ctx.drawImage(enemyTwo, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]);
+        }
     }
 }
 
+var enemyOneBullets = [];
 function moveEnemies() {
     for (var i = 0; i < enemies.length; i++) {
-        if (enemies[i][1] < height) {
-            enemies[i][1] += enemies[i][4];
-            if (enemies[i][1] === 51) {
-                enemyOneBullets.push([enemies[i][0] + 10, enemies[i][1]]);
+            if (enemies[i][1] < height) {
+                enemies[i][1] += enemies[i][4];
+                if (enemies[i][5] === 1) {
+                    if (enemies[i][1] === 51) {
+                        enemyOneBullets.push([enemies[i][0] + 8, enemies[i][1]]);
+                    }
+                    if (enemies[i][1] === 210) {
+                        enemyOneBullets.push([enemies[i][0] + 8, enemies[i][1]]);
+                    }
+                } else if (enemies[i][5] === 2) {
+                    if (enemies[i][1] < 170) {
+                      enemies[i][0] = enemies[i][0] + 2;
+                    }
+                    if (enemies[i][1] > 170) {
+                        enemies[i][0] = enemies[i][0] - 2; 
+                    }
+                } 
+            } else if (enemies[i][1] > height - 1) {
+                if (enemies[i][5] === 1) {
+                  enemies[i][1] = -45;
+                } else if (enemies[i][5] === 2) {
+                  enemies[i][1] = -300; 
+                  enemies[i][0] = 50; 
+                }
             }
-            if (enemies[i][1] === 210) {
-                enemyOneBullets.push([enemies[i][0] + 10, enemies[i][1]]);
-            }
-
-        } else if (enemies[i][1] > height - 1) {
-            enemies[i][1] = -45;
-        }
+        
 
     }
 }
 
 var laser = new Image();
-laser.src = "../css/laser.png";
+laser.src = "../img/laser.png";
 var enemyOneBullet = new Image();
-enemyOneBullet.src = "../css/enemyOneBullet.png";
+enemyOneBullet.src = "../img/enemyOneBullet.png";
 
 function drawLaser() {
   if (lasers.length)
@@ -117,7 +147,7 @@ function drawLaser() {
 
   if (enemyOneBullets.length)
     for (var i = 0; i < enemyOneBullets.length; i++) {
-        ctx.drawImage(enemyOneBullet, enemyOneBullets[i][0], enemyOneBullets[i][1], 35, 35);
+        ctx.drawImage(enemyOneBullet, enemyOneBullets[i][0], enemyOneBullets[i][1], 30, 30);
     }
 
 }
@@ -147,11 +177,14 @@ function init() {
     canvasBg = document.getElementById("canvasBg");
     ctxBg = canvasBg.getContext("2d");
     userShip = new Image();
-    userShip.src = 'spaceship.png'; 
+    userShip.src = '../img/spaceship.png'; 
     enemyOne = new Image();
-    enemyOne.src = 'enemyOne.png';
+    enemyOne.src = '../img/enemyOne.png';
+    enemyTwo = new Image();
+    enemyTwo.src = '../img/enemyThree.png'
     document.addEventListener('keydown', keyDown, false);
     document.addEventListener('keyup', keyUp, false);
+    setup();
     setInterval(gameLoop, 25);
 }
 
@@ -181,11 +214,12 @@ function hitTest() {
                 remove = true;
                 enemies.splice(j, 1);
                 enemies.push([
-                    (Math.random() * 500) + 50, 
+                    (Math.random() * 450), 
                     -45, 
                     enemy_w, 
                     enemy_h, 
-                    speed
+                    speed=3,
+                    1
                 ]);
             }
         }
@@ -215,7 +249,7 @@ function shipCollision() {
     }
 
     for (var i = 0; i < enemyOneBullets.length; i++) {
-        if (enemyOneBullets[i][0] + 30 > ship_x && enemyOneBullets[i][0] < ship_xw && enemyOneBullets[i][1] > ship_y && enemyOneBullets[i][1] < ship_yh) {
+        if (enemyOneBullets[i][0] + 25 > ship_x && enemyOneBullets[i][0] < ship_xw && enemyOneBullets[i][1] > ship_y && enemyOneBullets[i][1] < ship_yh) {
             alive = false;
         }
         
@@ -224,7 +258,7 @@ function shipCollision() {
 
 var vx = 0;
 var bgImg = new Image();
-bgImg.src = "../css/galaxy.png";
+bgImg.src = "../img/galaxy.png";
 
 function drawBackground() {
 
@@ -240,12 +274,25 @@ function drawBackground() {
 function scoreTotal() {
 
     if (!alive) {
+        healthPoints = healthPoints - 1;
 
-        if (frame > 2.3) {
+        if (healthPoints > 0) {
             clearCanvas();
-            ctx.fillStyle = '#fff';
-            ctx.font = "bold 18px Arial";
-            ctx.fillText('Game Over', 200, height / 2);
+            ship_x = (width / 2) - 25, ship_y = height - 75, ship_w = 50, ship_h = 50;
+            enemy_x = 50, enemy_y = -45, enemy_w = 45, enemy_h = 45;
+            enemyOneBullets = [];
+            lasers = [];
+            enemies = [];
+            setup();
+            alive = true;
+            frame = 0;
+        }
+
+        if (healthPoints <= 0 && frame >= 2.1) {
+          clearCanvas();
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 18px Arial";
+          ctx.fillText("Game Over", 200, height / 2);
         }
     }
 }
@@ -253,15 +300,14 @@ function scoreTotal() {
 
 function gameLoop() {
     clearCanvas();
-        moveEnemies();
-        moveLaser();
-        shipCollision();
-        drawEnemies();
-        drawShip();
-        drawLaser();
-        hitTest();
-        drawBackground();
-    
+    moveEnemies();
+    moveLaser();
+    shipCollision();
+    drawEnemies();
+    drawShip();
+    drawLaser();
+    hitTest();
+    drawBackground();
     scoreTotal();
 }
 
