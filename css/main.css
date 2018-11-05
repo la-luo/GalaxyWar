@@ -1,28 +1,70 @@
 
 body {
+  background-image: url(../img/wallpaper.jpg);
+  background-size: cover;
   padding:0;
   margin:0;
-  background:#666;
   position: relative;
   text-align: center;
 }
 
+.gameWall {
+  
+  position: absolute;
+  top:20px;
+  left: 300px;
+  width: 500px;
+  height: 720px;
+  background-color: black;
+}
+
+.gameWall > label {
+  position: fixed;
+  top: 360px;
+  left: 475px;
+  color: #fff;
+  font-weight: 600;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.helpInfo {
+  position: fixed;
+  top: 30px;
+  left:840px;
+  text-align: left;
+}
+
+.helpInfo > label {
+  font-size: 28px;
+  color: #fff;
+  font-weight: 600;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.helpInfo > p {
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 #canvas{
   position: absolute;
-  top:10px;
+  top:20px;
   left: 300px;
-  border:1px dashed #ccc;
   width: 500px;
   height: 720px;
 }
 
 #canvasBg {
   position: absolute;
-  top:10px;
+  top:20px;
   left: 300px;
   width: 500px;
   height: 720px;
 }
+
+
 
 
 
