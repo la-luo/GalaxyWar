@@ -7,7 +7,8 @@ var canvas,
   width = 500,
   height = 720,
   enemyOne,
-  enemyTwo,
+  enemyThree,
+  enemyFour,
   enemyTotal = 3,
   enemies = [],
   enemy_x = 50 + Math.random() * 70,
@@ -33,9 +34,13 @@ var canvas,
   explosionImg,
   laserImg,
   enemyOneBulletImg,
+  laserGreenRight,
+  laserGreenLeft,
   bgImg,
   bloodImg,
   enemyOneBullets = [],
+  enemyFourRightBullets = [],
+  enemyFourLeftBullets = [],
   [frame, sx, sy] = [0, 0, 0],
   vx = 0,
   enterGame = false;
@@ -57,7 +62,9 @@ function setup() {
         enemy_x += 150;
     }
 
-    enemies.push([50, -250, 80, 80, speed = 4, 2]);
+    enemies.push([50, -250, 80, 80, speed = 4, 3]);
+    enemies.push([width/2, -500, 50, 50, speed = 2, 4]);
+
 }
 
 function reset() {
@@ -79,6 +86,7 @@ function reset() {
     ship_h = 50,
     paused = false,
     enemyOneBullets = [],
+    enemyFourRightBullets = [],
     [frame, sx, sy] = [0, 0, 0],
     vx = 0;
     speed = 3;
@@ -140,8 +148,11 @@ function drawEnemies() {
         if (enemies[i][5] === 1) {
             ctx.drawImage(enemyOne, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]); 
         }
-        if (enemies[i][5] === 2) {
-            ctx.drawImage(enemyTwo, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]);
+        if (enemies[i][5] === 3) {
+            ctx.drawImage(enemyThree, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]);
+        }
+        if (enemies[i][5] === 4) {
+            ctx.drawImage(enemyFour, enemies[i][0], enemies[i][1], enemies[i][2], enemies[i][3]);
         }
     }
 }
@@ -151,29 +162,33 @@ function moveEnemies() {
             if (enemies[i][1] < height) {
                 enemies[i][1] += enemies[i][4];
                 if (enemies[i][5] === 1) {
-                    if (enemies[i][1] === 51) {
+                    if (enemies[i][1] === 51 || enemies[i][1] === 210) {
                         enemyOneBullets.push([enemies[i][0] + 8, enemies[i][1]]);
                     }
-                    if (enemies[i][1] === 210) {
-                        enemyOneBullets.push([enemies[i][0] + 8, enemies[i][1]]);
-                    }
-                } else if (enemies[i][5] === 2) {
+                } else if (enemies[i][5] === 3) {
                     if (enemies[i][1] < 170 || enemies[i][1] > 490) {
                       enemies[i][0] = enemies[i][0] + 2;
                     }
                     if (enemies[i][1] > 170 && enemies[i][1] <= 490) {
                         enemies[i][0] = enemies[i][0] - 2; 
                     }
+                } else if (enemies[i][5] === 4) {
+                    if(enemies[i][1] % 5 === 0) {
+                      enemyFourRightBullets.push([enemies[i][0] + 17, enemies[i][1] + 40]);
+                      enemyFourLeftBullets.push([enemies[i][0], enemies[i][1] + 40]);
+                    }
                 } 
             } else if (enemies[i][1] > height - 1) {
                 if (enemies[i][5] === 1) {
                   enemies[i][1] = -45;
-                } else if (enemies[i][5] === 2) {
+                } else if (enemies[i][5] === 3) {
                   enemies[i][1] = -300; 
                   enemies[i][0] = 50; 
+                } else if (enemies[i][5] === 4) {
+                    enemies[i][1] = -300;
+                    enemies[i][0] = width/2;
                 }
             }
-        
 
     }
 }
@@ -191,6 +206,11 @@ function drawLaser() {
         ctx.drawImage(enemyOneBulletImg, enemyOneBullets[i][0], enemyOneBullets[i][1], 30, 30);
     }
 
+  if (enemyFourRightBullets.length)
+    for (var i = 0; i < enemyFourRightBullets.length; i++) {
+        ctx.drawImage(laserGreenRight, enemyFourRightBullets[i][0], enemyFourRightBullets[i][1], 30, 30);
+        ctx.drawImage(laserGreenLeft, enemyFourLeftBullets[i][0], enemyFourLeftBullets[i][1], 30, 30);
+    }
 }
 
 function moveLaser() {
@@ -210,6 +230,19 @@ function moveLaser() {
         }
     }
 
+    for (var i = 0; i < enemyFourRightBullets.length; i++) {
+        if (enemyFourRightBullets[i][1] < height) {
+            enemyFourRightBullets[i][1] += 5;
+            enemyFourRightBullets[i][0] += 5;
+            enemyFourLeftBullets[i][1] += 5;
+            enemyFourLeftBullets[i][0] -= 5;
+        } else if (enemyFourRightBullets[i][1] > height - 1) {
+            enemyFourRightBullets.splice(i, 1);
+            enemyFourLeftBullets.splice(i, 1);
+        }
+    }
+
+
 }
 
 function init() {
@@ -223,16 +256,22 @@ function init() {
     userShip.src = './img/spaceship.png';
     enemyOne = new Image();
     enemyOne.src = './img/enemyOne.png';
-    enemyTwo = new Image();
-    enemyTwo.src = './img/enemyThree.png';
+    enemyFour = new Image();
+    enemyFour.src = './img/enemyFour.png';
+    enemyThree = new Image();
+    enemyThree.src = './img/enemyThree.png';
     explosionImg = new Image();
     explosionImg.src = "./img/explosion.png";
     laserImg = new Image();
     laserImg.src = "./img/laser.png";
     enemyOneBulletImg = new Image();
+    enemyOneBulletImg.src = "./img/enemyOneBullet.png";
+    laserGreenRight = new Image();
+    laserGreenRight.src = "./img/laserGreenRight.png";
+    laserGreenLeft = new Image();
+    laserGreenLeft.src = "./img/laserGreenLeft.png";
     bloodImg = new Image();
     bloodImg.src = "./img/bloodDrop.png";
-    enemyOneBulletImg.src = "./img/enemyOneBullet.png";
     document.addEventListener('keydown', keyDown, false);
     document.addEventListener('keyup', keyUp, false);
     setup();
@@ -273,7 +312,7 @@ function hitTest() {
             && lasers[i][0] >= enemies[j][0] 
             && lasers[i][0] <= (enemies[j][0] + enemies[j][2])) {
                 remove = true;
-                if (enemies[j][5] == 1) {
+                if (enemies[j][5] === 1) {
                     enemies.push([
                         (Math.random() * 450), 
                         -45, 
@@ -282,8 +321,10 @@ function hitTest() {
                         speed=3,
                         1
                 ]); 
-                } else if (enemies[j][5] == 2) {
-                    enemies.push([50, -250, 80, 80, speed = 4,2]);  
+                } else if (enemies[j][5] === 3) {
+                    enemies.push([50, -250, 80, 80, speed = 4,3]);  
+                } else if (enemies[j][5] === 4) {
+                    enemies.push([(Math.random() * 450), -300, 50, 50, speed = 2, 4]);
                 }
                 enemies.splice(j, 1);
                 score += 10; 
@@ -366,7 +407,8 @@ function scoreTotal() {
         if (healthPoints <= 0 && frame >= 2.1) {
           clearCanvas();
           ctx.font = "bold 18px Arial";
-          ctx.fillText("Game Over", 200, height / 2);
+          ctx.fillText("Game Over", 200, height / 2 - 10);
+          ctx.fillText("Total Score " + score, 180, height / 2 + 15);
         }
     }
 }
