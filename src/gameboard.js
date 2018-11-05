@@ -87,6 +87,7 @@ function reset() {
     paused = false,
     enemyOneBullets = [],
     enemyFourRightBullets = [],
+    enemyFourLeftBullets = [],
     [frame, sx, sy] = [0, 0, 0],
     vx = 0;
     speed = 3;
