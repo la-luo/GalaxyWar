@@ -20,6 +20,7 @@ var canvas,
   healthPoints = 3,
   laserTotal = 9,
   lasers = [],
+  score = 0,
   rightKey = false,
   leftKey = false,
   upKey = false,
@@ -69,6 +70,7 @@ function reset() {
     speed = 3,
     alive = true,
     healthPoints = 3,
+    score = 0,
     laserTotal = 9,
     lasers = [],
     ship_x = width / 2 - 25,
@@ -280,6 +282,7 @@ function hitTest() {
                     speed=3,
                     1
                 ]);
+                score += 10; 
             }
         }
         if (remove == true) {
@@ -337,6 +340,9 @@ function drawHealth() {
 }
 
 function scoreTotal() {
+    ctx.fillStyle = "#fff";
+    ctx.font = "15px Arial";
+    ctx.fillText("Score: " + score, 400, 25);
 
     if (!alive) {
         healthPoints = healthPoints - 1;
@@ -355,7 +361,6 @@ function scoreTotal() {
 
         if (healthPoints <= 0 && frame >= 2.1) {
           clearCanvas();
-          ctx.fillStyle = "#fff";
           ctx.font = "bold 18px Arial";
           ctx.fillText("Game Over", 200, height / 2);
         }
