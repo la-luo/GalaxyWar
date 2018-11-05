@@ -158,10 +158,10 @@ function moveEnemies() {
                         enemyOneBullets.push([enemies[i][0] + 8, enemies[i][1]]);
                     }
                 } else if (enemies[i][5] === 2) {
-                    if (enemies[i][1] < 170) {
+                    if (enemies[i][1] < 170 || enemies[i][1] > 490) {
                       enemies[i][0] = enemies[i][0] + 2;
                     }
-                    if (enemies[i][1] > 170) {
+                    if (enemies[i][1] > 170 && enemies[i][1] <= 490) {
                         enemies[i][0] = enemies[i][0] - 2; 
                     }
                 } 
@@ -273,15 +273,19 @@ function hitTest() {
             && lasers[i][0] >= enemies[j][0] 
             && lasers[i][0] <= (enemies[j][0] + enemies[j][2])) {
                 remove = true;
+                if (enemies[j][5] == 1) {
+                    enemies.push([
+                        (Math.random() * 450), 
+                        -45, 
+                        enemy_w, 
+                        enemy_h, 
+                        speed=3,
+                        1
+                ]); 
+                } else if (enemies[j][5] == 2) {
+                    enemies.push([50, -250, 80, 80, speed = 4,2]);  
+                }
                 enemies.splice(j, 1);
-                enemies.push([
-                    (Math.random() * 450), 
-                    -45, 
-                    enemy_w, 
-                    enemy_h, 
-                    speed=3,
-                    1
-                ]);
                 score += 10; 
             }
         }
