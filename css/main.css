@@ -8,6 +8,15 @@ body {
   text-align: center;
 }
 
+h1 {
+  color: #fff;
+  margin-bottom: 15px;
+  margin-top: 0px;
+  margin-left: 0px;
+  font-family: 'Shojumaru', cursive;
+  font-size: 36px;
+}
+
 .gameWall {
   
   position: absolute;
