@@ -2,6 +2,7 @@
 
 Game Link: https://rola1993.github.io/GalaxyWar/
 
+![play](https://github.com/Rola1993/GalaxyWar/blob/master/img/play.gif)
 
 ## Background and Overview
 
