@@ -359,9 +359,21 @@ function shipCollision() {
     for (var i = 0; i < enemyOneBullets.length; i++) {
         if (enemyOneBullets[i][0] + 25 > ship_x && enemyOneBullets[i][0] < ship_xw && enemyOneBullets[i][1] > ship_y && enemyOneBullets[i][1] < ship_yh) {
             alive = false;
-        }
-        
+        } 
     }
+
+    for (var i = 0; i < enemyFourLeftBullets.length; i++) {
+        if(enemyFourLeftBullets[i][0] + 10 > ship_x && enemyFourLeftBullets[i][0] < ship_xw && enemyFourLeftBullets[i][1] > ship_y && enemyFourLeftBullets[i][1] < ship_yh) {
+            alive = false;
+        }
+    }
+
+    for (var i = 0; i < enemyFourRightBullets.length; i++) {
+        if (enemyFourRightBullets[i][0] + 10 > ship_x && enemyFourRightBullets[i][0] < ship_xw && enemyFourRightBullets[i][1] > ship_y && enemyFourRightBullets[i][1] < ship_yh) {
+          alive = false;
+        }
+    }
+
 }
 
 
